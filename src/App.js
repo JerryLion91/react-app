@@ -1,4 +1,6 @@
 import React from 'react';
+import Countries from './components/Countries';
+import Header from './components/Header';
 
 export default class App extends React.Component {
   constructor() {
@@ -6,50 +8,65 @@ export default class App extends React.Component {
     this.state = {
       allCountries: [],
       countries: [],
+      countriesPop: 0,
+      filter: '',
     };
   }
 
   async componentDidMount() {
     const res = await fetch('https://restcountries.eu/rest/v2/all');
     const json = await res.json();
+    const allCountries = json.map(({ name, numericCode, flag, population }) => {
+      return {
+        id: numericCode,
+        name,
+        flag,
+        population,
+      };
+    });
+
+    const countriesPop = this.calculateTotalPopFrom(allCountries);
+
     this.setState({
-      allCountries: json,
+      allCountries,
+      countries: allCountries,
+      countriesPop,
     });
   }
 
-  handleTyping = ({ target }) => {
+  handleTyping = (newText) => {
     const { allCountries } = this.state;
-    const filteredArr = allCountries.filter(({ name }) => {
-      return name.toLowerCase().includes(target.value.toLowerCase());
+
+    const filteredCountries = allCountries.filter(({ name }) => {
+      return name.toLowerCase().includes(newText.toLowerCase());
     });
+    const countriesPop = this.calculateTotalPopFrom(filteredCountries);
     this.setState({
-      countries: filteredArr,
+      countries: filteredCountries,
+      filter: newText,
+      countriesPop,
     });
   };
 
+  calculateTotalPopFrom = (countries) => {
+    return countries.reduce((acc, country) => {
+      return acc + country.population;
+    }, 0);
+  };
+
   render() {
-    const { countries } = this.state;
+    const { countries, countriesPop, filter } = this.state;
     return (
       <>
-        <h1>React Countries</h1>
-        <label>
-          <input type="text" onChange={this.handleTyping} /> Quantidade de
-          Paises: {countries.length}| Populacao Total:{' '}
-          {countries.reduce((acc, country) => {
-            return acc + country.population;
-          }, 0)}
-        </label>
+        <h2>React Countries</h2>
+        <Header
+          filter={filter}
+          onTyping={this.handleTyping}
+          totalPop={countriesPop}
+          numCountries={countries.length}
+        />
         <h3>Paises</h3>
-        <ul>
-          {this.state.countries.map(({ name, numericCode, flag }) => {
-            return (
-              <li key={numericCode}>
-                <img src={flag} />
-                {name}
-              </li>
-            );
-          })}
-        </ul>
+        <Countries countries={countries} />
       </>
     );
   }
