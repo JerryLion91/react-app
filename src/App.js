@@ -1,73 +1,44 @@
 import React from 'react';
-import Countries from './components/Countries';
-import Header from './components/Header';
+import Input from './components/input/Input';
 
+/**
+ * react-text-transformer
+ * input editavel
+ *
+ * inputs read-only:
+ *  Texto invertido
+ *  texto numerico: (maiusculas, O = 0, L = 1, E = 3, A = 4, S = 5, T = 7)
+ *  CSV: (palavras envolvida em "" e separadas por ;)
+ *  Slug: (minusculas, palavras separadas por -)
+ *  Somente vogais: (preservar espacos)
+ *  Somente consoantes: (preservar espacos)
+ *  camelCase: Primera palavra inicia em minusculas, demais palavras com o primeira maiusculas
+ *
+ */
 export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      allCountries: [],
-      countries: [],
-      countriesPop: 0,
-      filter: '',
+      userInput: '',
     };
   }
-
-  async componentDidMount() {
-    const res = await fetch('https://restcountries.eu/rest/v2/all');
-    const json = await res.json();
-    const allCountries = json.map(({ name, numericCode, flag, population }) => {
-      return {
-        id: numericCode,
-        name,
-        flag,
-        population,
-      };
-    });
-
-    const countriesPop = this.calculateTotalPopFrom(allCountries);
-
-    this.setState({
-      allCountries,
-      countries: allCountries,
-      countriesPop,
-    });
-  }
-
-  handleTyping = (newText) => {
-    const { allCountries } = this.state;
-
-    const filteredCountries = allCountries.filter(({ name }) => {
-      return name.toLowerCase().includes(newText.toLowerCase());
-    });
-    const countriesPop = this.calculateTotalPopFrom(filteredCountries);
-    this.setState({
-      countries: filteredCountries,
-      filter: newText,
-      countriesPop,
-    });
-  };
-
-  calculateTotalPopFrom = (countries) => {
-    return countries.reduce((acc, country) => {
-      return acc + country.population;
-    }, 0);
-  };
-
   render() {
-    const { countries, countriesPop, filter } = this.state;
     return (
-      <>
-        <h2>React Countries</h2>
-        <Header
-          filter={filter}
-          onTyping={this.handleTyping}
-          totalPop={countriesPop}
-          numCountries={countries.length}
-        />
-        <h3>Paises</h3>
-        <Countries countries={countries} />
-      </>
+      <div className={'container'}>
+        <h3 className={'center-align'}>react-text-transformer</h3>
+        <label className={'teal-text'}>
+          <strong>Digite um Texto Qualquer:</strong>
+          <input type="text" />
+        </label>
+        <h5 className={'center-align'}>Transformations</h5>
+        <Input description={'Texto Invertido:'} />
+        <Input description={'Texto Numerico:'} />
+        <Input description={'CSV:'} />
+        <Input description={'Slug:'} />
+        <Input description={'Somente Vogais'} />
+        <Input description={'Somente Consoantes:'} />
+        <Input description={'Variavel'} />
+      </div>
     );
   }
 }

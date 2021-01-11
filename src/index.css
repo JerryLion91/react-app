@@ -18,13 +18,3 @@ code {
   align-items: center;
   justify-content: flex-start;
 }
-
-.padding {
-  padding: 10px;
-}
-
-img {
-  height: 40px;
-  width: 40px;
-  border-radius: 50%;
-}
