@@ -1,22 +1,46 @@
-import React, { useState } from 'react';
-import { getNewTimestamp } from './helpers/dateTimeHelpers.js';
+import React from 'react';
 
-export default function App() {
-  const [dates, setDate] = useState([]);
+export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      countries: [],
+      inputValue: null,
+    };
+  }
 
-  const handleClick = () => {
-    setDate((prev) => [...prev, getNewTimestamp()]);
+  async componentDidMount() {
+    const res = await fetch('https://restcountries.eu/rest/v2/all');
+    const json = await res.json();
+    this.setState({
+      countries: json,
+    });
+  }
+
+  handleTyping = ({ target }) => {
+    const { countries } = this.state;
+    const filteredArr = countries.filter(({ name }) => {
+      return name.includes(target.value);
+    });
+    this.setState({
+      countries: filteredArr,
+    });
   };
 
-  return (
-    <div>
-      <h1>React Hooks</h1>
-      <button onClick={handleClick}>Click here</button>
-      <ul>
-        {dates.map((date, index) => {
-          return <li key={index}>{date}</li>;
-        })}
-      </ul>
-    </div>
-  );
+  render() {
+    return (
+      <>
+        <label>
+          <input type="text" onChange={this.handleTyping} /> Quantidade de
+          Paises: | Populacao Total:
+        </label>
+        <h3>Paises</h3>
+        <ul>
+          {this.state.countries.map((country) => {
+            return <li>{country.name}</li>;
+          })}
+        </ul>
+      </>
+    );
+  }
 }
