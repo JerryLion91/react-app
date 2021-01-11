@@ -4,8 +4,8 @@ export default class App extends React.Component {
   constructor() {
     super();
     this.state = {
+      allCountries: [],
       countries: [],
-      inputValue: null,
     };
   }
 
@@ -13,14 +13,14 @@ export default class App extends React.Component {
     const res = await fetch('https://restcountries.eu/rest/v2/all');
     const json = await res.json();
     this.setState({
-      countries: json,
+      allCountries: json,
     });
   }
 
   handleTyping = ({ target }) => {
-    const { countries } = this.state;
-    const filteredArr = countries.filter(({ name }) => {
-      return name.includes(target.value);
+    const { allCountries } = this.state;
+    const filteredArr = allCountries.filter(({ name }) => {
+      return name.toLowerCase().includes(target.value.toLowerCase());
     });
     this.setState({
       countries: filteredArr,
@@ -28,16 +28,26 @@ export default class App extends React.Component {
   };
 
   render() {
+    const { countries } = this.state;
     return (
       <>
+        <h1>React Countries</h1>
         <label>
           <input type="text" onChange={this.handleTyping} /> Quantidade de
-          Paises: | Populacao Total:
+          Paises: {countries.length}| Populacao Total:{' '}
+          {countries.reduce((acc, country) => {
+            return acc + country.population;
+          }, 0)}
         </label>
         <h3>Paises</h3>
         <ul>
-          {this.state.countries.map((country) => {
-            return <li>{country.name}</li>;
+          {this.state.countries.map(({ name, numericCode, flag }) => {
+            return (
+              <li key={numericCode}>
+                <img src={flag} />
+                {name}
+              </li>
+            );
           })}
         </ul>
       </>
